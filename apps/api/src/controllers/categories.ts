@@ -5,10 +5,10 @@ const categories: Array<Category> = []
 let id = 0
 
 //Functions
-export function categoryById(req): number {
-    const {id} = req.params
-    return categories.findIndex( item => item.id == id)
-  }
+function categoryById(req): number {
+  const {id} = req.params
+  return categories.findIndex( item => item.id == id)
+}
 
 //GET all categories
 export const getCategories = (req,res) => {
