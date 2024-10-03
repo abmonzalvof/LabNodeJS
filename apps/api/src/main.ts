@@ -3,6 +3,7 @@ import helmet from 'helmet'  //Package, This support us to add common headers in
 import cors from 'cors'
 import categories from './routes/categories' 
 import posts from './routes/posts' 
+import auth from './routes/auth' 
 
 const host = process.env.HOST ?? 'localhost'
 const port = process.env.PORT ? Number(process.env.PORT) : 3000
@@ -12,6 +13,7 @@ app.use(helmet())
 app.use(cors({
    origin: ['http://localhost:4200']
 }))
+app.use('/api/auth', auth)
 app.use('/api/categories', categories)
 app.use('/api/posts', posts)
 app.listen(port, host, () => {
