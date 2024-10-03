@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { User } from '../models/user'
-import { match } from 'assert'
-import { error } from 'console'
 
 //Variables
 const users: Array<User> = []
@@ -12,6 +10,7 @@ export function getUser(username): User | null {
     return users.find(item => item.username === username)
 }
 
+//POST create a user
 export const register = (req, res) => {
     const {username, password} = req.body
     if(username && password){
@@ -37,6 +36,7 @@ export const register = (req, res) => {
     }
 }
 
+//POST login user
 export const login = (req, res) => {
     const {username, password} = req.body
     if(username && password){
@@ -47,7 +47,7 @@ export const login = (req, res) => {
             bcrypt.compare(password,user.password.toString(), function(err, result){
                 if(result){
                     const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '15m'})
-                    const refreshToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
+                    const refreshToken = jwt.sign({username}, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'})
                     res.cookie('refreshToken',refreshToken, {
                         httpOnly: true,
                         maxAge: 1*24*60*60*1000 
@@ -68,10 +68,24 @@ export const login = (req, res) => {
     }
 }
 
-export const logout = (req, res) => {
-
+//GET refresh accessToken
+export const refresh = (req, res) => {
+    const refreshToken = req.cookies.refreshToken
+    if(refreshToken){
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, {username}) => {
+            if(err){
+                return res.status(403).json({message: 'Forbidden'})
+            }
+            const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '15m'})
+            res.json({accessToken})
+        })
+    } else {
+        return res.status(401).json({message: 'Unauthorized'})
+    }
 }
 
-export const refresh = (req, res) => {
-
+//GET logout
+export const logout = (req, res) => {
+    res.clearCookie('refreshToken')
+    res.json({message: 'Logged out successfully'})
 }
