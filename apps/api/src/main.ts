@@ -1,6 +1,7 @@
 import express from 'express'
 import helmet from 'helmet'  //Package, This support us to add common headers into an application
 import cors from 'cors'
+import mongoose from 'mongoose'
 import categories from './routes/categories' 
 import posts from './routes/posts' 
 import auth from './routes/auth' 
@@ -20,8 +21,14 @@ app.use(verifyToken)
 app.use('/api/categories', categories)
 app.use('/api/posts', posts)
 app.use(errorHandler)
-app.listen(port, host, () => {
-
-  console.log(`[ ready ] http://${host}:${port}`)
+mongoose.connect(process.env.MONGO_URL).then( () =>{
+  console.log('Connected to MongoDB')
+  app.listen(port, host, () => {
+    console.log(`[ ready ] http://${host}:${port}`)
+  })
+}).catch((e) => {
+  console.log(e)
 })
+
+
 
